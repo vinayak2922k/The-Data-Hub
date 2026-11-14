@@ -1,0 +1,255 @@
+{
+  "info": {
+    "_postman_id": "9897ddf3-2a9c-4bef-9406-00956317e5f0",
+    "name": "The Data Hub API Collection",
+    "description": "Comprehensive Postman test collection for The Data Hub in-memory RESTful API server built with Spring Boot 3 & Java 17+.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Telemetry & Health",
+      "item": [
+        {
+          "name": "GET Health Telemetry",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Returns operational status, formatted uptime, UTC timestamp, total posts count, and request counter."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication (Mock JWT)",
+      "item": [
+        {
+          "name": "POST Login - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('authToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"developer@datahub.io\",\n  \"password\": \"SuperSecret2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["login"]
+            },
+            "description": "Authenticates user and returns a mock 3-part Base64 URL-encoded JWT token."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Login - Missing Credentials (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"developer@datahub.io\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["login"]
+            },
+            "description": "Demonstrates validation error (HTTP 400) when password is missing."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Posts (CRUD)",
+      "item": [
+        {
+          "name": "GET All Posts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"]
+            },
+            "description": "Retrieves the full list of in-memory posts."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Post - Success (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Scaling RESTful APIs with Spring Boot 3\",\n  \"content\": \"Clean architecture, thread-safe memory models, and structured responses in enterprise systems.\",\n  \"author\": \"Lead Architect\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"]
+            },
+            "description": "Creates a new post with validated fields and returns HTTP 201 Created."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Post - Validation Error (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"\",\n  \"content\": \"Too short\",\n  \"author\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"]
+            },
+            "description": "Triggers 400 Bad Request with field-level validation errors from GlobalExceptionHandler."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Post by ID - Success (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/posts/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "1"]
+            },
+            "description": "Retrieves an individual post by ID."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Post by ID - Not Found (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/posts/9999",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "9999"]
+            },
+            "description": "Triggers 404 Not Found handled by PostNotFoundException."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Update Post - Success (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Scaling RESTful APIs with Spring Boot 3 [UPDATED]\",\n  \"content\": \"Revised architecture notes with updated benchmarks and deployment guides.\",\n  \"author\": \"Principal Architect\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "1"]
+            },
+            "description": "Updates an existing post and resets updatedAt timestamp."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Post by ID - Success (200)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/posts/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "1"]
+            },
+            "description": "Deletes the post with the specified ID."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Unknown Routes (404 Fallback)",
+      "item": [
+        {
+          "name": "GET Unknown Route (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/non-existent-endpoint",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "non-existent-endpoint"]
+            },
+            "description": "Tests unknown route handler returning clean JSON 404."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

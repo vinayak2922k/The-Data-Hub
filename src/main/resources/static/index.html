@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Data Hub | High-Performance In-Memory REST API</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0d14;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-hover: rgba(24, 32, 52, 0.85);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(99, 102, 241, 0.35);
+      --primary: #6366f1;
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-yellow: #f59e0b;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Poppins', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 25%, rgba(236, 72, 153, 0.10) 0%, transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Animated background grid */
+    .bg-grid {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Navigation / Top Bar */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--primary-gradient);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .brand-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    .brand-text {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.35rem;
+      letter-spacing: -0.5px;
+    }
+
+    .badge-online {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse 1.8s infinite cubic-bezier(0.66, 0, 0, 1);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); }
+      70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 3.5rem 0 2.5rem;
+    }
+
+    .hero-title {
+      font-family: var(--font-heading);
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: hueShift 12s infinite alternate ease-in-out;
+    }
+
+    @keyframes hueShift {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(45deg); }
+    }
+
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 680px;
+      margin: 0 auto 2rem;
+      font-weight: 400;
+    }
+
+    .hero-tags {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      color: #cbd5e1;
+    }
+
+    /* Live Stats Strip */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin: 2.5rem 0 3.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .stat-val {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    /* Section Headings */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* API Explorer Cards Grid */
+    .api-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .endpoint-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .endpoint-card:hover {
+      border-color: var(--border-glow);
+      background: var(--bg-card-hover);
+    }
+
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .endpoint-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .method-badge {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      min-width: 75px;
+      text-align: center;
+    }
+
+    .method-get { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .method-post { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .method-put { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .method-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    .endpoint-path {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+
+    .endpoint-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 0.4rem;
+    }
+
+    .endpoint-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: var(--font-sans);
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: white;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    /* Params / Body editor inside card */
+    .params-wrapper {
+      margin-top: 1.25rem;
+      display: grid;
+      gap: 0.85rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .form-input, .form-textarea {
+      background: rgba(10, 13, 20, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #f8fafc;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 0.65rem 0.9rem;
+      transition: border-color 0.2s ease;
+      width: 100%;
+    }
+
+    .form-input:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+    }
+
+    /* Response block */
+    .response-container {
+      margin-top: 1.25rem;
+      background: #090c13;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .response-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.55rem 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.75rem;
+    }
+
+    .response-status-badge {
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .status-2xx { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .status-4xx { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .status-5xx { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+    .response-time {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .response-body {
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      max-height: 280px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: rgba(18, 24, 38, 0.95);
+      border: 1px solid var(--accent-green);
+      color: #34d399;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 100;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 5rem;
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="container">
+    <!-- Top Bar -->
+    <header class="top-nav">
+      <a href="/" class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 6H20V8H4V6ZM4 11H20V13H4V11ZM4 16H20V18H4V16Z"/></svg>
+        </div>
+        <span class="brand-text">The Data Hub</span>
+      </a>
+      <div class="badge-online">
+        <span class="pulse-dot"></span>
+        <span id="badge-port">Server Online &bull; Port 5000</span>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <h1 class="hero-title">The Data Hub</h1>
+      <p class="hero-subtitle">
+        A high-performance in-memory RESTful API server built with Spring Boot 3, Java 17+, thread-safe data structures, and custom reactive middleware.
+      </p>
+      <div class="hero-tags">
+        <span class="tag">Java 17+</span>
+        <span class="tag">Spring Boot 3</span>
+        <span class="tag">In-Memory Engine</span>
+        <span class="tag">AtomicLong ID Gen</span>
+        <span class="tag">ANSI Logger Filter</span>
+        <span class="tag">CORS Enabled</span>
+      </div>
+    </section>
+
+    <!-- Live Stats Strip -->
+    <section class="stats-strip">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">&#128221;</div>
+        <div>
+          <div class="stat-val" id="stat-posts">0</div>
+          <div class="stat-label">Total Posts</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">&#9201;</div>
+        <div>
+          <div class="stat-val" id="stat-uptime">00h 00m 00s</div>
+          <div class="stat-label">System Uptime</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">&#9889;</div>
+        <div>
+          <div class="stat-val" id="stat-requests">0</div>
+          <div class="stat-label">Requests Served</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">&#128274;</div>
+        <div>
+          <div class="stat-val" id="stat-auth">Active</div>
+          <div class="stat-label">Mock JWT Auth</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Explorer Section -->
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Interactive API Explorer</h2>
+        <p class="section-desc">Test real server endpoints directly from your browser. Live request dispatch and response telemetry.</p>
+      </div>
+      <button class="btn btn-secondary" onclick="refreshTelemetry()">
+        &#128260; Refresh Stats
+      </button>
+    </div>
+
+    <div class="api-grid">
+
+      <!-- 1. GET /posts -->
+      <div class="endpoint-card">
+        <div class="endpoint-header">
+          <div>
+            <div class="endpoint-meta">
+              <span class="method-badge method-get">GET</span>
+              <span class="endpoint-path">/posts</span>
+            </div>
+            <div class="endpoint-desc">Retrieve all blog posts from in-memory storage.</div>
+          </div>
+          <div class="endpoint-actions">
+            <button class="btn btn-primary" onclick="executeApi('get-posts', 'GET', '/posts')">
+              &#9654; Try it
+            </button>
+          </div>
+        </div>
+        <div class="response-container" id="resp-get-posts">
+          <div class="response-header">
+            <span class="response-status-badge" id="badge-get-posts">200 OK</span>
+            <span class="response-time" id="time-get-posts">12ms</span>
+            <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="copyResponse('body-get-posts')">Copy</button>
+          </div>
+          <pre class="response-body" id="body-get-posts"></pre>
+        </div>
+      </div>
+
+      <!-- 2. POST /posts -->
+      <div class="endpoint-card">
+        <div class="endpoint-header">
+          <div>
+            <div class="endpoint-meta">
+              <span class="method-badge method-post">POST</span>
+              <span class="endpoint-path">/posts</span>
+            </div>
+            <div class="endpoint-desc">Create a new post with validation (@Valid title, content, author). Returns 201 Created.</div>
+          </div>
+          <div class="endpoint-actions">
+            <button class="btn btn-primary" onclick="executeCreatePost()">
+              &#9654; Try it
+            </button>
+          </div>
+        </div>
+        <div class="params-wrapper">
+          <div class="form-group">
+            <label class="form-label">JSON Request Body</label>
+            <textarea class="form-textarea" id="input-post-body" rows="4">{
+  "title": "Scaling REST APIs with Spring Boot 3",
+  "content": "Designing stateless services with clean separation of concerns and robust error handling.",
+  "author": "Demo Engineer"
+}</textarea>
+          </div>
+        </div>
+        <div class="response-container" id="resp-post-posts">
+          <div class="response-header">
+            <span class="response-status-badge" id="badge-post-posts">201 CREATED</span>
+            <span class="response-time" id="time-post-posts">15ms</span>
+            <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="copyResponse('body-post-posts')">Copy</button>
+          </div>
+          <pre class="response-body" id="body-post-posts"></pre>
+        </div>
+      </div>
+
+      <!-- 3. GET /posts/{id} -->
+      <div class="endpoint-card">
+        <div class="endpoint-header">
+          <div>
+            <div class="endpoint-meta">
+              <span class="method-badge method-get">GET</span>
+              <span class="endpoint-path">/posts/{id}</span>
+            </div>
+            <div class="endpoint-desc">Retrieve a single blog post by its unique ID. Returns 404 if missing.</div>
+          </div>
+          <div class="endpoint-actions">
+            <button class="btn btn-primary" onclick="executeGetPostById()">
+              &#9654; Try it
+            </button>
+          </div>
+        </div>
+        <div class="params-wrapper">
+          <div class="form-group" style="max-width: 200px;">
+            <label class="form-label">Post ID</label>
+            <input type="number" class="form-input" id="input-get-id" value="1" min="1" />
+          </div>
+        </div>
+        <div class="response-container" id="resp-get-post-id">
+          <div class="response-header">
+            <span class="response-status-badge" id="badge-get-post-id">200 OK</span>
+            <span class="response-time" id="time-get-post-id">8ms</span>
+            <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="copyResponse('body-get-post-id')">Copy</button>
+          </div>
+          <pre class="response-body" id="body-get-post-id"></pre>
+        </div>
+      </div>
+
+      <!-- 4. PUT /posts/{id} -->
+      <div class="endpoint-card">
+        <div class="endpoint-header">
+          <div>
+            <div class="endpoint-meta">
+              <span class="method-badge method-put">PUT</span>
+              <span class="endpoint-path">/posts/{id}</span>
+            </div>
+            <div class="endpoint-desc">Update an existing blog post by ID. Returns 404 if post does not exist.</div>
+          </div>
+          <div class="endpoint-actions">
+            <button class="btn btn-primary" onclick="executeUpdatePost()">
+              &#9654; Try it
+            </button>
+          </div>
+        </div>
+        <div class="params-wrapper">
+          <div class="form-group" style="max-width: 200px;">
+            <label class="form-label">Post ID</label>
+            <input type="number" class="form-input" id="input-put-id" value="1" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Updated JSON Payload</label>
+            <textarea class="form-textarea" id="input-put-body" rows="4">{
+  "title": "Updated: In-Memory Architecture in Practice",
+  "content": "Fully synchronized in-memory lists ensure high concurrency and deterministic reads.",
+  "author": "Senior Architect"
+}</textarea>
+          </div>
+        </div>
+        <div class="response-container" id="resp-put-posts">
+          <div class="response-header">
+            <span class="response-status-badge" id="badge-put-posts">200 OK</span>
+            <span class="response-time" id="time-put-posts">10ms</span>
+            <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="copyResponse('body-put-posts')">Copy</button>
+          </div>
+          <pre class="response-body" id="body-put-posts"></pre>
+        </div>
+      </div>
+
+      <!-- 5. DELETE /posts/{id} -->
+      <div class="endpoint-card">
+        <div class="endpoint-header">
+          <div>
+            <div class="endpoint-meta">
+              <span class="method-badge method-delete">DELETE</span>
+              <span class="endpoint-path">/posts/{id}</span>
+            </div>
+            <div class="endpoint-desc">Remove a blog post using removeIf stream filter. Returns confirmation message.</div>
+          </div>
+          <div class="endpoint-actions">
+            <button class="btn btn-primary" onclick="executeDeletePost()">
+              &#9654; Try it
+            </button>
+          </div>
+        </div>
+        <div class="params-wrapper">
+          <div class="form-group" style="max-width: 200px;">
+            <label class="form-label">Post ID</label>
+            <input type="number" class="form-input" id="input-delete-id" value="1" min="1" />
+          </div>
+        </div>
+        <div class="response-container" id="resp-delete-posts">
+          <div class="response-header">
+            <span class="response-status-badge" id="badge-delete-posts">200 OK</span>
+            <span class="response-time" id="time-delete-posts">9ms</span>
+            <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="copyResponse('body-delete-posts')">Copy</button>
+          </div>
+          <pre class="response-body" id="body-delete-posts"></pre>
+        </div>
+      </div>
+
+      <!-- 6. POST /login -->
+      <div class="endpoint-card">
+        <div class="endpoint-header">
+          <div>
+            <div class="endpoint-meta">
+              <span class="method-badge method-post">POST</span>
+              <span class="endpoint-path">/login</span>
+            </div>
+            <div class="endpoint-desc">Mock JWT Authentication: generates a 3-part Base64 URL-encoded token.</div>
+          </div>
+          <div class="endpoint-actions">
+            <button class="btn btn-primary" onclick="executeLogin()">
+              &#9654; Try it
+            </button>
+          </div>
+        </div>
+        <div class="params-wrapper">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" id="input-login-email" value="developer@datahub.io" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-input" id="input-login-pass" value="SuperSecret2026!" />
+            </div>
+          </div>
+        </div>
+        <div class="response-container" id="resp-login">
+          <div class="response-header">
+            <span class="response-status-badge" id="badge-login">200 OK</span>
+            <span class="response-time" id="time-login">6ms</span>
+            <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="copyResponse('body-login')">Copy</button>
+          </div>
+          <pre class="response-body" id="body-login"></pre>
+        </div>
+      </div>
+
+      <!-- 7. GET /health -->
+      <div class="endpoint-card">
+        <div class="endpoint-header">
+          <div>
+            <div class="endpoint-meta">
+              <span class="method-badge method-get">GET</span>
+              <span class="endpoint-path">/health</span>
+            </div>
+            <div class="endpoint-desc">Live telemetry check reporting status, uptime duration, UTC timestamp, and counters.</div>
+          </div>
+          <div class="endpoint-actions">
+            <button class="btn btn-primary" onclick="executeApi('health', 'GET', '/health')">
+              &#9654; Try it
+            </button>
+          </div>
+        </div>
+        <div class="response-container" id="resp-health">
+          <div class="response-header">
+            <span class="response-status-badge" id="badge-health">200 OK</span>
+            <span class="response-time" id="time-health">4ms</span>
+            <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="copyResponse('body-health')">Copy</button>
+          </div>
+          <pre class="response-body" id="body-health"></pre>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">&#10003; Copied to clipboard!</div>
+
+    <!-- Footer -->
+    <footer>
+      <p>&copy; 2026 The Data Hub &bull; Built with Spring Boot 3 &amp; Java 17+ &bull; RESTful Architecture</p>
+    </footer>
+  </div>
+
+  <script>
+    // Live Telemetry Poller
+    async function refreshTelemetry() {
+      try {
+        const res = await fetch('/health');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data) {
+            document.getElementById('stat-uptime').textContent = json.data.uptime || '00h 00m 00s';
+            document.getElementById('stat-posts').textContent = json.data.totalPosts ?? '0';
+            document.getElementById('stat-requests').textContent = json.data.requestsServed ?? '0';
+          }
+        }
+      } catch (e) {
+        console.warn('Telemetry polling paused:', e);
+      }
+    }
+
+    // Generic API Dispatcher
+    async function executeApi(cardKey, method, url, body = null) {
+      const respBox = document.getElementById(`resp-${cardKey}`);
+      const badge = document.getElementById(`badge-${cardKey}`);
+      const timeBox = document.getElementById(`time-${cardKey}`);
+      const bodyBox = document.getElementById(`body-${cardKey}`);
+
+      respBox.style.display = 'block';
+      bodyBox.textContent = 'Executing request...';
+
+      const start = performance.now();
+      try {
+        const options = {
+          method: method,
+          headers: { 'Content-Type': 'application/json' }
+        };
+        if (body) {
+          options.body = typeof body === 'string' ? body : JSON.stringify(body);
+        }
+
+        const res = await fetch(url, options);
+        const duration = Math.round(performance.now() - start);
+
+        let data;
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+
+        // Format Badge
+        badge.textContent = `${res.status} ${res.statusText || (res.ok ? 'OK' : 'ERROR')}`;
+        badge.className = 'response-status-badge ' + (res.status >= 200 && res.status < 300 ? 'status-2xx' : (res.status >= 400 && res.status < 500 ? 'status-4xx' : 'status-5xx'));
+        timeBox.textContent = `${duration}ms`;
+        bodyBox.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+
+        // Auto refresh stats
+        refreshTelemetry();
+      } catch (err) {
+        const duration = Math.round(performance.now() - start);
+        badge.textContent = 'NETWORK ERROR';
+        badge.className = 'response-status-badge status-5xx';
+        timeBox.textContent = `${duration}ms`;
+        bodyBox.textContent = JSON.stringify({ success: false, message: err.message }, null, 2);
+      }
+    }
+
+    // Specific handlers
+    function executeCreatePost() {
+      const raw = document.getElementById('input-post-body').value;
+      executeApi('post-posts', 'POST', '/posts', raw);
+    }
+
+    function executeGetPostById() {
+      const id = document.getElementById('input-get-id').value || 1;
+      executeApi('get-post-id', 'GET', `/posts/${id}`);
+    }
+
+    function executeUpdatePost() {
+      const id = document.getElementById('input-put-id').value || 1;
+      const raw = document.getElementById('input-put-body').value;
+      executeApi('put-posts', 'PUT', `/posts/${id}`, raw);
+    }
+
+    function executeDeletePost() {
+      const id = document.getElementById('input-delete-id').value || 1;
+      executeApi('delete-posts', 'DELETE', `/posts/${id}`);
+    }
+
+    function executeLogin() {
+      const email = document.getElementById('input-login-email').value;
+      const password = document.getElementById('input-login-pass').value;
+      executeApi('login', 'POST', '/login', { email, password });
+    }
+
+    function copyResponse(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'flex';
+        setTimeout(() => { toast.style.display = 'none'; }, 2200);
+      });
+    }
+
+    // Poll every 3 seconds for live telemetry
+    refreshTelemetry();
+    setInterval(refreshTelemetry, 3000);
+  </script>
+</body>
+</html>
