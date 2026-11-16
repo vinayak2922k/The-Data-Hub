@@ -57,3 +57,4 @@ public class HealthController {
         return ResponseEntity.ok(ApiResponse.success("Server is healthy and operational", health));
     }
 }
+

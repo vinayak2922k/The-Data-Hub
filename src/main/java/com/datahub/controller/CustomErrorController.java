@@ -38,3 +38,4 @@ public class CustomErrorController implements ErrorController {
                 .body(ApiResponse.error(message));
     }
 }
+

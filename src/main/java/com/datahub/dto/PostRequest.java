@@ -54,3 +54,4 @@ public class PostRequest {
         this.author = author;
     }
 }
+

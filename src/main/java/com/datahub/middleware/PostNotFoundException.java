@@ -16,3 +16,4 @@ public class PostNotFoundException extends RuntimeException {
         return postId;
     }
 }
+

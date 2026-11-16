@@ -70,3 +70,4 @@ class DataHubApplicationTests {
                 .andExpect(jsonPath("$.data.token").isString());
     }
 }
+

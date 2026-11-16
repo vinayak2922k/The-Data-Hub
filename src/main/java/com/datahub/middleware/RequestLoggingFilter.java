@@ -79,3 +79,4 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         return requestCounter.get();
     }
 }
+
