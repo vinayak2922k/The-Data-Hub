@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Data Hub | REST API Server</title>
+  <title>The Data Hub | REST API Server - Developed by Vinayak Sharma</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #090d16;
@@ -65,7 +65,71 @@
     .resp-pre { padding: 0.75rem; font-family: var(--mono); font-size: 0.75rem; color: #e5e7eb; max-height: 200px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
     .btn-copy { background: transparent; border: 1px solid var(--card-border); color: var(--muted); font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; }
     .btn-copy:hover { color: #fff; }
-    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #1e293b; color: #34d399; border: 1px solid #34d399; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; display: none; }
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #1e293b; color: #34d399; border: 1px solid #34d399; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; display: none; z-index: 100; }
+
+    /* Developer Footer */
+    .footer { margin-top: 3.5rem; }
+    .footer-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    .footer-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gradient);
+    }
+    .footer-title { font-size: 1.15rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.35rem; }
+    .heart { color: #ef4444; display: inline-block; animation: beat 1.5s infinite; }
+    @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+    .dev-name {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+    }
+    .footer-subtitle { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.25rem; }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .social-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      transition: all 0.2s ease;
+    }
+    .social-pill:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.5);
+      background: rgba(99, 102, 241, 0.15);
+      color: #fff;
+    }
+    .social-pill.github:hover { border-color: #a855f7; background: rgba(168, 85, 247, 0.15); }
+    .social-pill.linkedin:hover { border-color: #0077b5; background: rgba(0, 119, 181, 0.15); }
+    .social-pill.gmail:hover { border-color: #ea4335; background: rgba(234, 67, 53, 0.15); }
+    .social-pill svg { width: 16px; height: 16px; fill: currentColor; }
+    .footer-copy { font-size: 0.75rem; color: #64748b; }
   </style>
 </head>
 <body>
@@ -87,6 +151,33 @@
     </div>
 
     <div class="api-list" id="api-list"></div>
+
+    <!-- Developer Footer Section -->
+    <footer class="footer">
+      <div class="footer-card">
+        <div class="footer-title">Developed with <span class="heart">&hearts;</span> by <span class="dev-name">Vinayak Sharma</span></div>
+        <p class="footer-subtitle">Senior Java Backend Engineer &bull; Spring Boot 3 &bull; RESTful Microservices</p>
+        <div class="footer-links">
+          <!-- GitHub -->
+          <a href="https://github.com/vinayak2922k" target="_blank" rel="noopener noreferrer" class="social-pill github">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            <span>GitHub: vinayak2922k</span>
+          </a>
+          <!-- LinkedIn -->
+          <a href="https://linkedin.com/in/vinayak2922k" target="_blank" rel="noopener noreferrer" class="social-pill linkedin">
+            <svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            <span>LinkedIn: vinayak2922k</span>
+          </a>
+          <!-- Email -->
+          <a href="mailto:vinayaksharma2289@gmail.com" class="social-pill gmail">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            <span>vinayaksharma2289@gmail.com</span>
+          </a>
+        </div>
+        <div class="footer-copy">&copy; 2026 The Data Hub &bull; All Rights Reserved &bull; Engineered by Vinayak Sharma</div>
+      </div>
+    </footer>
+
     <div class="toast" id="toast">&#10003; Copied to clipboard!</div>
   </div>
 
@@ -96,13 +187,13 @@
       { id: 'health', method: 'GET', path: '/health', desc: 'System health check and live operational telemetry.' },
       { id: 'get-posts', method: 'GET', path: '/posts', desc: 'Retrieve all blog posts from in-memory storage.' },
       { id: 'create-post', method: 'POST', path: '/posts', desc: 'Create a post with validated title, content, author.',
-        body: JSON.stringify({ title: "In-Memory Architecture", content: "Clean Spring Boot 3 design pattern.", author: "Engineer" }, null, 2) },
+        body: JSON.stringify({ title: "In-Memory Architecture", content: "Clean Spring Boot 3 design pattern.", author: "Vinayak Sharma" }, null, 2) },
       { id: 'get-post', method: 'GET', path: '/posts/{id}', desc: 'Fetch single post by ID (returns 404 if missing).', param: '1' },
       { id: 'update-post', method: 'PUT', path: '/posts/{id}', desc: 'Update existing post fields by ID.', param: '1',
-        body: JSON.stringify({ title: "Updated Architecture", content: "Revised benchmarks and notes.", author: "Architect" }, null, 2) },
+        body: JSON.stringify({ title: "Updated Architecture", content: "Revised benchmarks and notes.", author: "Vinayak Sharma" }, null, 2) },
       { id: 'delete-post', method: 'DELETE', path: '/posts/{id}', desc: 'Remove post using removeIf stream filter.', param: '1' },
       { id: 'login', method: 'POST', path: '/login', desc: 'Mock JWT auth returning a 3-part Base64URL token.',
-        body: JSON.stringify({ email: "developer@datahub.io", password: "Password123!" }, null, 2) }
+        body: JSON.stringify({ email: "vinayaksharma2289@gmail.com", password: "Password123!" }, null, 2) }
     ];
 
     // Render Clean Minimal Cards

@@ -354,7 +354,18 @@ Test coverage includes:
 
 ---
 
+## 👨‍💻 Author & Developer
+
+**Vinayak Sharma**  
+*Senior Java Backend Engineer &bull; Full-Stack Microservices*
+
+- **GitHub:** [@vinayak2922k](https://github.com/vinayak2922k)
+- **LinkedIn:** [Vinayak Sharma](https://linkedin.com/in/vinayak2922k)
+- **Email:** [vinayaksharma2289@gmail.com](mailto:vinayaksharma2289@gmail.com)
+
+---
+
 ## 📜 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. Developed by Vinayak Sharma.
 
